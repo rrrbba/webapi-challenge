@@ -12,3 +12,9 @@ I need this code, just don't know where, perhaps should make some middleware, do
 
 Go code!
 */
+
+const server = require('./server');
+
+server.listen(2000, () => {
+    console.log('\n***COME TO 2000 IF YOU DARE***\n');
+});
