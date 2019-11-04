@@ -18,7 +18,7 @@ router.get('/', (req, res) => {
 
 
 //GET ACTION BY ID
-router.get('/:id', validateAction, (req, res) => {
+router.get('/:id', validateActionId, (req, res) => {
     actionDb.get(req.action)
     .then(action => {
         res.status(200).json(action)
@@ -30,10 +30,11 @@ router.get('/:id', validateAction, (req, res) => {
 
 
 //CREATES NEW ACTION AFTER VALIDATING ID
-router.post('/', validateProject, (req, res) => {
+router.post('/:id', validateProject, (req, res) => {
     const {description, notes} = req.body;
     req.body.project_id = req.project;
 
+    console.log(req.body);
     if (!description || !notes){
         res.status(400).json({ message: "POST ACTION FAILED!"})
     } else {
@@ -48,7 +49,7 @@ router.post('/', validateProject, (req, res) => {
 })
 
 //DELETE AN ACTION
-router.delete('/:id', validateAction, (req, res) => {
+router.delete('/:id', validateActionId, (req, res) => {
  
     actionDb.remove(req.action)
     .then(actions => {
@@ -62,7 +63,7 @@ router.delete('/:id', validateAction, (req, res) => {
 })
 
 //UPDATES AN ACTION
-router.put('/:id', validateAction, (req, res) => {
+router.put('/:id', validateActionId, (req, res) => {
     const {description, notes} = req.body;
 
     if (!description || !notes){
@@ -80,19 +81,20 @@ router.put('/:id', validateAction, (req, res) => {
 
 
 //middleware
-function validateAction(req, res, next) {
+function validateActionId(req, res, next) {
     actionDb.get(req.params.id) //GETS AN ACTION BY AN ID
     .then(action => {
         if (!action){ //IF NO ACTION ID
             res.status(400).json({ error: "ACTION ID IS WRONG"})
         } else {
-            req.action = req.params.id //assigns req.action to the id
+            req.action = req.params.id //assigns req.action to the id instead of req.action change to req.actionid
             next();
         }
     })
 };
 
 function validateProject(req, res, next) {
+    console.log(req.params.id)
     projectDb.get(req.params.id)
         .then(proj => {
             if (!proj) {
@@ -102,6 +104,9 @@ function validateProject(req, res, next) {
                 req.project = req.params.id //assigns req.project to id
                 next()
             }
+        })
+        .catch(err => {
+            res.status(500).json({ error: "VALIDATE PROJECT ERROR"})
         })
 } 
 
